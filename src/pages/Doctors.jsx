@@ -108,7 +108,7 @@ export default function Doctors() {
     formData.append("file", file);
 
     try {
-      const uploadRes = await API.post("/uploads/image", formData);
+      const uploadRes = await API.post("/api/upload/image", formData);
       const imageUrl = uploadRes.data.image_url.replace("uploads/", "");
       
       // Update doctor record
