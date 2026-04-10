@@ -1,17 +1,15 @@
-import { NavLink, useNavigate } from "react-router-dom";
+import { NavLink } from "react-router-dom";
 import { 
   LayoutDashboard, 
   Users, 
   CalendarDays, 
   LogOut, 
-  PlusCircle, 
   Stethoscope,
   Settings,
   ChevronRight
 } from "lucide-react";
 
 export default function Sidebar({ onLogout }) {
-  const nav = useNavigate();
 
   const linkClass = ({ isActive }) =>
     `group flex items-center justify-between gap-3 px-4 py-3.5 rounded-2xl transition-all duration-300 ${
