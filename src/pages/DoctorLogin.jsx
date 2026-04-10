@@ -1,51 +1,148 @@
 import { useState } from "react";
 import API from "../api/axios";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
+import { 
+  User, 
+  Lock, 
+  ArrowRight, 
+  ShieldCheck,
+  AlertCircle,
+  Loader2,
+  Heart
+} from "lucide-react";
 
-export default function DoctorLogin() {
+export default function DoctorLogin({ onLogin }) {
   const [form, setForm] = useState({ username: "", password: "" });
-  const nav = useNavigate();
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
 
-  const handleLogin = async () => {
+  const handleLogin = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    setError("");
+    
     try {
-      const res = await API.post("/auth/login", form);
+      const params = new URLSearchParams();
+      params.append("username", form.username);
+      params.append("password", form.password);
 
-      localStorage.setItem("token", res.data.access_token);
-
-      const payload = JSON.parse(atob(res.data.access_token.split(".")[1]));
-
+      const res = await API.post("/auth/login", params, {
+        headers: { "Content-Type": "application/x-www-form-urlencoded" }
+      });
+      const token = res.data.access_token;
+      
+      const payload = JSON.parse(atob(token.split(".")[1]));
+      
       if (payload.role === "doctor") {
-        nav("/doctor");
+        onLogin(token);
       } else {
-        alert("Not a doctor account");
+        setError("This account is not registered as a doctor.");
+        setLoading(false);
       }
+    } catch (err) {
+      let message = "Login failed. Please check your credentials.";
+      const detail = err.response?.data?.detail;
 
-    } catch {
-      alert("Login failed");
+      if (typeof detail === "string") {
+        message = detail;
+      } else if (Array.isArray(detail) && detail[0]?.msg) {
+        message = detail[0].msg;
+      } else if (detail && typeof detail === "object" && detail.msg) {
+        message = detail.msg;
+      }
+      
+      setError(message);
+      setLoading(false);
     }
   };
 
   return (
-    <div className="flex h-screen justify-center items-center">
-      <div className="p-6 bg-white shadow w-80">
-        <h2 className="text-xl mb-4">Doctor Login</h2>
+    <div className="min-h-screen w-full flex items-center justify-center bg-emerald-50/30 relative overflow-hidden">
+      {/* Background Decorative Elements */}
+      <div className="absolute top-0 -left-1/4 w-1/2 h-full bg-emerald-600/5 blur-[120px] rounded-full pointer-events-none" />
+      <div className="absolute bottom-0 -right-1/4 w-1/2 h-full bg-indigo-600/5 blur-[120px] rounded-full pointer-events-none" />
+      
+      <div className="w-full max-w-md p-8 relative z-10">
+        <div className="text-center mb-10">
+          <div className="inline-flex items-center justify-center p-3 bg-emerald-600 text-white rounded-2xl shadow-xl shadow-emerald-100 mb-6 group transition-transform hover:scale-105">
+            <Heart size={32} strokeWidth={2.5} />
+          </div>
+          <h1 className="text-3xl font-bold text-slate-900 tracking-tight mb-2">Doctor Portal</h1>
+          <p className="text-slate-500 font-medium">Coordinate care and manage appointments</p>
+        </div>
 
-        <input
-          placeholder="Username"
-          className="border p-2 w-full mb-2"
-          onChange={e => setForm({...form, username: e.target.value})}
-        />
+        <div className="glass p-8 rounded-[2.5rem] shadow-2xl shadow-slate-200/50 border-emerald-100/30">
+          <form onSubmit={handleLogin} className="space-y-6">
+            <div className="space-y-2">
+              <label className="text-sm font-bold text-slate-700 ml-1">Staff Username</label>
+              <div className="relative group">
+                <User className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-emerald-600 transition-colors" size={20} />
+                <input
+                  required
+                  placeholder="Enter your doctor username"
+                  className="w-full pl-12 pr-4 py-3.5 bg-slate-100 border-none rounded-2xl text-sm font-medium focus:ring-2 focus:ring-emerald-600/20 transition-all outline-none"
+                  onChange={(e) => setForm({ ...form, username: e.target.value })}
+                />
+              </div>
+            </div>
 
-        <input
-          placeholder="Password"
-          type="password"
-          className="border p-2 w-full mb-2"
-          onChange={e => setForm({...form, password: e.target.value})}
-        />
+            <div className="space-y-2">
+              <div className="flex justify-between items-center px-1">
+                <label className="text-sm font-bold text-slate-700">Password</label>
+                <button type="button" className="text-xs font-bold text-emerald-600 hover:text-emerald-700 transition-colors">Forgot?</button>
+              </div>
+              <div className="relative group">
+                <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-emerald-600 transition-colors" size={20} />
+                <input
+                  required
+                  type="password"
+                  placeholder="••••••••"
+                  className="w-full pl-12 pr-4 py-3.5 bg-slate-100 border-none rounded-2xl text-sm font-medium focus:ring-2 focus:ring-emerald-600/20 transition-all outline-none"
+                  onChange={(e) => setForm({ ...form, password: e.target.value })}
+                />
+              </div>
+            </div>
 
-        <button onClick={handleLogin} className="bg-green-500 text-white w-full p-2">
-          Login
-        </button>
+            {error && (
+              <div className="flex items-center gap-2 text-rose-500 bg-rose-50 p-3 rounded-xl border border-rose-100 animate-in fade-in slide-in-from-top-1">
+                <AlertCircle size={18} />
+                <p className="text-xs font-bold">{error}</p>
+              </div>
+            )}
+
+            <button
+              disabled={loading}
+              className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-4 rounded-2xl shadow-lg shadow-emerald-100 transition-all active:scale-[0.98] disabled:opacity-70 disabled:pointer-events-none flex items-center justify-center gap-2 group"
+            >
+              {loading ? (
+                <Loader2 className="animate-spin" size={20} />
+              ) : (
+                <>
+                  <span>Doctor Sign In</span>
+                  <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
+                </>
+              )}
+            </button>
+          </form>
+
+          <div className="mt-8 pt-8 border-t border-slate-100/50">
+            <div className="flex flex-col items-center gap-4">
+              <div className="flex items-center gap-2 text-indigo-600 bg-indigo-50 px-3 py-1.5 rounded-full border border-indigo-100">
+                <ShieldCheck size={14} strokeWidth={2.5} />
+                <span className="text-[10px] font-bold uppercase tracking-wider text-indigo-700">Doctor Access Secure</span>
+              </div>
+              
+              <p className="text-slate-400 text-sm font-medium">
+                Administrator? {" "}
+                <Link to="/login" className="text-emerald-600 font-bold hover:underline">Admin Login</Link>
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <p className="mt-8 text-center text-slate-400 text-xs font-medium">
+          &copy; 2026 MediSync Systems. All rights reserved.
+        </p>
       </div>
     </div>
   );
