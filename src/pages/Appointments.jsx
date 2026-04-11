@@ -11,8 +11,6 @@ import {
   FileUp,
   FileText,
   ExternalLink,
-  CheckCircle2,
-  AlertCircle,
   Loader2
 } from "lucide-react";
 
@@ -194,7 +192,7 @@ export default function Appointments() {
                               <FileText size={16} />
                             </div>
                             <button 
-                              onClick={() => window.open(`http://127.0.0.1:8000/uploads/${a.report}`)}
+                              onClick={() => window.open(`${process.env.REACT_APP_API_BASE_URL || "http://127.0.0.1:8000"}/uploads/${a.report.replace("uploads/", "")}`)}
                               className="text-xs font-bold text-indigo-600 hover:underline flex items-center gap-1"
                             >
                               <span>View PDF</span>

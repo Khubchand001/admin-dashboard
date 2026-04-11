@@ -1,10 +1,10 @@
 import { useEffect, useState, useRef } from "react";
 import API from "../api/axios";
-import { 
-  Stethoscope, 
-  Award, 
-  ExternalLink, 
-  Search, 
+import {
+  Stethoscope,
+  Award,
+  ExternalLink,
+  Search,
   MoreVertical,
   Plus,
   User,
@@ -22,19 +22,19 @@ export default function Doctors() {
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
-  
+
   // Modal State
   const [selectedDoctor, setSelectedDoctor] = useState(null);
   const [activeTab, setActiveTab] = useState("profile"); // profile, availability, reports
   const [isModalOpen, setIsModalOpen] = useState(false);
-  
+
   // Management Data
   const [appointments, setAppointments] = useState([]);
   const [isUpdating, setIsUpdating] = useState(false);
   const [isAddingDoctor, setIsAddingDoctor] = useState(false);
   const [newDoctor, setNewDoctor] = useState({ name: "", specialization: "", experience: "", image: "" });
   const [editForm, setEditForm] = useState({ name: "", specialization: "", experience: "" });
-  
+
   const fileInputRef = useRef(null);
 
   const loadDoctors = () => {
@@ -109,11 +109,11 @@ export default function Doctors() {
 
     try {
       const uploadRes = await API.post("/api/upload/image", formData);
-      const imageUrl = uploadRes.data.image_url.replace("uploads/", "");
-      
+      const imageUrl = uploadRes.data.image_url.replace("", "");
+
       // Update doctor record
       await API.patch(`/doctors/${selectedDoctor.id}`, { image: imageUrl });
-      
+
       // Refresh
       loadDoctors();
       setSelectedDoctor({ ...selectedDoctor, image: imageUrl });
@@ -146,34 +146,34 @@ export default function Doctors() {
     }
   };
 
-  const filteredDoctors = data.filter(d => 
-    d.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
+  const filteredDoctors = data.filter(d =>
+    d.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
     d.specialization.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   return (
     <div className="flex-1 bg-slate-50 min-h-screen p-10 overflow-y-auto">
       <div className="max-w-7xl mx-auto">
-        
+
         {/* 🔝 Header Section */}
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-10">
           <div>
             <h1 className="text-3xl font-bold text-slate-900 tracking-tight">Active Doctors</h1>
             <p className="text-slate-500 font-medium">Coordinate and manage healthcare providers</p>
           </div>
-          
+
           <div className="flex items-center gap-4">
             <div className="relative group">
               <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-indigo-600 transition-colors" size={18} />
-              <input 
-                type="text" 
-                placeholder="Search name or specialty..." 
+              <input
+                type="text"
+                placeholder="Search name or specialty..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="pl-12 pr-4 py-2.5 bg-white border border-slate-200 rounded-2xl text-sm focus:ring-4 focus:ring-indigo-600/10 transition-all w-72 font-medium outline-none shadow-sm"
               />
             </div>
-            <button 
+            <button
               onClick={() => setIsAddingDoctor(true)}
               className="flex items-center gap-2 bg-indigo-600 text-white px-5 py-2.5 rounded-2xl hover:bg-indigo-700 transition-all hover:shadow-lg hover:shadow-indigo-100 font-bold text-sm"
             >
@@ -194,14 +194,14 @@ export default function Doctors() {
             {filteredDoctors.map((d) => (
               <div key={d.id} className="glass p-8 rounded-[2.5rem] relative group overflow-hidden transition-all duration-300 hover:scale-[1.02] hover:shadow-2xl hover:shadow-slate-200">
                 <div className="absolute top-0 right-0 w-32 h-32 bg-indigo-600/5 -mr-10 -mt-10 rounded-full blur-3xl group-hover:bg-indigo-600/10 transition-colors" />
-                
+
                 <div className="relative z-10">
                   <div className="flex justify-between items-start mb-6">
                     <div className="relative">
                       {d.image ? (
-                        <img 
-                          src={`http://127.0.0.1:8000/uploads/${d.image}`} 
-                          alt={`Dr. ${d.name}`} 
+                        <img
+                          src={`${process.env.REACT_APP_API_BASE_URL || ""}/uploads/${d.image.replace("uploads/", "")}`}
+                          alt={`Dr. ${d.name}`}
                           className="w-20 h-20 rounded-3xl object-cover shadow-lg border-4 border-white"
                         />
                       ) : (
@@ -213,7 +213,7 @@ export default function Doctors() {
                         <div className="w-1.5 h-1.5 bg-white rounded-full animate-pulse"></div>
                       </div>
                     </div>
-                    <button 
+                    <button
                       onClick={() => openManager(d)}
                       className="p-2.5 text-slate-300 hover:text-indigo-600 hover:bg-indigo-50 rounded-xl transition-all"
                     >
@@ -239,7 +239,7 @@ export default function Doctors() {
                     </div>
                   </div>
 
-                  <button 
+                  <button
                     onClick={() => openManager(d)}
                     className="w-full flex items-center justify-center gap-2 bg-slate-900 text-white py-4 rounded-2xl font-bold text-xs hover:bg-black transition-all active:scale-95 shadow-xl shadow-slate-200"
                   >
@@ -263,16 +263,16 @@ export default function Doctors() {
         {isModalOpen && selectedDoctor && (
           <div className="fixed inset-0 z-50 flex items-center justify-center p-6 bg-slate-900/60 backdrop-blur-sm animate-in fade-in duration-300">
             <div className="bg-white w-full max-w-4xl max-h-[90vh] rounded-[3rem] shadow-2xl overflow-hidden flex flex-col animate-in zoom-in-95 duration-300">
-              
+
               {/* Header */}
               <div className="px-10 py-8 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
                 <div className="flex items-center gap-4">
                   <div className="w-14 h-14 rounded-2xl bg-indigo-600 flex items-center justify-center text-white shadow-lg shadow-indigo-100 font-bold text-xl">
                     {selectedDoctor.image ? (
-                      <img 
-                        src={`http://127.0.0.1:8000/uploads/${selectedDoctor.image}`} 
+                      <img
+                        src={`${process.env.REACT_APP_API_BASE_URL}/uploads/${selectedDoctor.image.replace("uploads/", "")}`}
                         alt={selectedDoctor.name}
-                        className="w-full h-full object-cover rounded-2xl" 
+                        className="w-full h-full object-cover rounded-2xl"
                       />
                     ) : selectedDoctor.name.charAt(0)}
                   </div>
@@ -293,12 +293,11 @@ export default function Doctors() {
                   { id: "availability", label: "Availability Slots", icon: Calendar },
                   { id: "reports", label: "Reports & Records", icon: FileText }
                 ].map(tab => (
-                  <button 
+                  <button
                     key={tab.id}
                     onClick={() => setActiveTab(tab.id)}
-                    className={`flex items-center gap-2 pb-4 pt-2 font-bold text-sm transition-all relative ${
-                      activeTab === tab.id ? "text-indigo-600" : "text-slate-400 hover:text-slate-600"
-                    }`}
+                    className={`flex items-center gap-2 pb-4 pt-2 font-bold text-sm transition-all relative ${activeTab === tab.id ? "text-indigo-600" : "text-slate-400 hover:text-slate-600"
+                      }`}
                   >
                     <tab.icon size={18} />
                     <span>{tab.label}</span>
@@ -309,12 +308,12 @@ export default function Doctors() {
 
               {/* Content */}
               <div className="flex-1 overflow-y-auto p-10 bg-slate-50/30">
-                
+
                 {activeTab === "profile" && (
                   <div className="space-y-8 animate-in slide-in-from-bottom-4 duration-300">
                     <div className="flex items-center justify-between">
                       <h3 className="text-xl font-bold text-slate-900">Profile Image</h3>
-                      <button 
+                      <button
                         onClick={() => fileInputRef.current.click()}
                         disabled={isUpdating}
                         className="flex items-center gap-2 bg-white border border-slate-200 px-5 py-2.5 rounded-2xl font-bold text-sm hover:border-indigo-600 hover:text-indigo-600 transition-all shadow-sm active:scale-95 disabled:opacity-50"
@@ -324,28 +323,28 @@ export default function Doctors() {
                       </button>
                       <input type="file" ref={fileInputRef} onChange={handleImageUpload} className="hidden" accept="image/*" />
                     </div>
-                    
+
                     <div className="grid grid-cols-2 gap-6">
                       <div className="space-y-2">
                         <label className="text-xs font-bold text-slate-400 uppercase tracking-widest px-1">Full Name</label>
-                        <input 
-                          value={editForm.name} 
+                        <input
+                          value={editForm.name}
                           onChange={(e) => setEditForm({ ...editForm, name: e.target.value })}
-                          className="w-full px-5 py-3.5 bg-white border border-slate-200 rounded-2xl text-slate-700 font-medium focus:ring-4 focus:ring-indigo-600/5 transition-all outline-none" 
+                          className="w-full px-5 py-3.5 bg-white border border-slate-200 rounded-2xl text-slate-700 font-medium focus:ring-4 focus:ring-indigo-600/5 transition-all outline-none"
                         />
                       </div>
                       <div className="space-y-2">
                         <label className="text-xs font-bold text-slate-400 uppercase tracking-widest px-1">Experience</label>
-                        <input 
-                          value={editForm.experience} 
+                        <input
+                          value={editForm.experience}
                           onChange={(e) => setEditForm({ ...editForm, experience: e.target.value })}
-                          className="w-full px-5 py-3.5 bg-white border border-slate-200 rounded-2xl text-slate-700 font-medium focus:ring-4 focus:ring-indigo-600/5 transition-all outline-none" 
+                          className="w-full px-5 py-3.5 bg-white border border-slate-200 rounded-2xl text-slate-700 font-medium focus:ring-4 focus:ring-indigo-600/5 transition-all outline-none"
                         />
                       </div>
                     </div>
-                    
+
                     <div className="pt-4">
-                      <button 
+                      <button
                         onClick={handleUpdateDoctor}
                         disabled={isUpdating}
                         className="w-full bg-slate-900 text-white py-4 rounded-2xl font-bold text-sm hover:bg-black transition-all active:scale-95 shadow-xl shadow-slate-200 disabled:opacity-50"
@@ -399,10 +398,10 @@ export default function Doctors() {
                                 <p className="text-xs text-slate-400 font-medium">{app.date} • {app.time}</p>
                               </div>
                             </div>
-                            
+
                             {app.report ? (
-                              <button 
-                                onClick={() => window.open(`http://127.0.0.1:8000/uploads/${app.report}`)}
+                              <button
+                                onClick={() => window.open(`${process.env.REACT_APP_API_BASE_URL || "http://127.0.0.1:8000"}/uploads/${app.report.replace("uploads/", "")}`)}
                                 className="flex items-center gap-2 text-indigo-600 font-bold text-xs bg-indigo-50 px-4 py-2 rounded-xl hover:bg-indigo-600 hover:text-white transition-all"
                               >
                                 <ExternalLink size={14} />
@@ -451,36 +450,36 @@ export default function Doctors() {
               <form onSubmit={handleAddDoctor} className="p-8 space-y-5">
                 <div className="space-y-2">
                   <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest px-1">Full Name</label>
-                  <input 
-                    required 
-                    value={newDoctor.name} 
-                    onChange={(e) => setNewDoctor({...newDoctor, name: e.target.value})}
-                    placeholder="Dr. John Smith" 
-                    className="w-full px-5 py-3 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-medium focus:ring-4 focus:ring-indigo-600/5 transition-all outline-none" 
+                  <input
+                    required
+                    value={newDoctor.name}
+                    onChange={(e) => setNewDoctor({ ...newDoctor, name: e.target.value })}
+                    placeholder="Dr. John Smith"
+                    className="w-full px-5 py-3 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-medium focus:ring-4 focus:ring-indigo-600/5 transition-all outline-none"
                   />
                 </div>
                 <div className="space-y-2">
                   <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest px-1">Specialization</label>
-                  <input 
-                    required 
-                    value={newDoctor.specialization} 
-                    onChange={(e) => setNewDoctor({...newDoctor, specialization: e.target.value})}
-                    placeholder="Cardiologist" 
-                    className="w-full px-5 py-3 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-medium focus:ring-4 focus:ring-indigo-600/5 transition-all outline-none" 
+                  <input
+                    required
+                    value={newDoctor.specialization}
+                    onChange={(e) => setNewDoctor({ ...newDoctor, specialization: e.target.value })}
+                    placeholder="Cardiologist"
+                    className="w-full px-5 py-3 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-medium focus:ring-4 focus:ring-indigo-600/5 transition-all outline-none"
                   />
                 </div>
                 <div className="space-y-2">
                   <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest px-1">Experience (Years)</label>
-                  <input 
-                    required 
-                    value={newDoctor.experience} 
-                    onChange={(e) => setNewDoctor({...newDoctor, experience: e.target.value})}
-                    placeholder="12+ Years" 
-                    className="w-full px-5 py-3 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-medium focus:ring-4 focus:ring-indigo-600/5 transition-all outline-none" 
+                  <input
+                    required
+                    value={newDoctor.experience}
+                    onChange={(e) => setNewDoctor({ ...newDoctor, experience: e.target.value })}
+                    placeholder="12+ Years"
+                    className="w-full px-5 py-3 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-medium focus:ring-4 focus:ring-indigo-600/5 transition-all outline-none"
                   />
                 </div>
-                <button 
-                  type="submit" 
+                <button
+                  type="submit"
                   disabled={isUpdating}
                   className="w-full bg-indigo-600 text-white py-4 rounded-2xl font-bold text-sm hover:bg-indigo-700 transition-all active:scale-95 shadow-lg shadow-indigo-100 disabled:opacity-50"
                 >

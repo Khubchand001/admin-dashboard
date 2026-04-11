@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import API from "../api/axios";
-import { LogOut, Heart, Calendar, User, Clock, ChevronRight } from "lucide-react";
+import { LogOut, Heart, Calendar, User, Clock, ChevronRight, FileText } from "lucide-react";
 
 export default function DoctorDashboard({ onLogout }) {
   const [patients, setPatients] = useState([]);
@@ -120,9 +120,19 @@ export default function DoctorDashboard({ onLogout }) {
                       </span>
                     </td>
                     <td className="px-8 py-5 text-right">
-                      <button className="p-2 text-slate-300 hover:text-indigo-600 transition-colors opacity-0 group-hover:opacity-100">
-                        <ChevronRight size={20} />
-                      </button>
+                      {p.report ? (
+                        <button
+                          onClick={() => window.open(`${process.env.REACT_APP_API_BASE_URL || "http://127.0.0.1:8000"}/uploads/${p.report.replace("uploads/", "")}`)}
+                          className="flex items-center gap-2 text-indigo-600 font-bold text-xs bg-indigo-50 px-4 py-2 rounded-xl hover:bg-indigo-600 hover:text-white transition-all ml-auto"
+                        >
+                          <FileText size={14} />
+                          <span>View Report</span>
+                        </button>
+                      ) : (
+                        <button className="p-2 text-slate-300 hover:text-indigo-600 transition-colors opacity-0 group-hover:opacity-100">
+                          <ChevronRight size={20} />
+                        </button>
+                      )}
                     </td>
                   </tr>
                 )) : (
